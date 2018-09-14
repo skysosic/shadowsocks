@@ -130,7 +130,7 @@ fi
 
 main(){
   #执行对应功能的函数
-  status_agent&&ddns&&shadow&&bbr
+  status_agent&&shadow&&ddns&&bbr
 }
 
 main
