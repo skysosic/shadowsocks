@@ -19,7 +19,10 @@ status_agent(){
      sed -i "s#^USER.*#USER = \"$user\"#g" $c_file
      read -p "输入PASSWORD: " password
      sed -i "s#^PASSWORD.*#PASSWORD = \"$password\"#g" $c_file
-     echo "nohup python $base_path/Serverstatus/client.py &" >>/etc/rc.local
+     chmod +x /etc/rc.d/rc.local
+     systemctl enable rc-local
+     systemctl restart rc-local
+     echo "nohup python $base_path/ServerStatus/clients/client.py >> /dev/null 2>&1 &" >>/etc/rc.local
      echo "开始启动客户端"
      nohup python client.py &
      sleep 3
@@ -93,7 +96,8 @@ shadow(){
         [ -z $mysql_pass ]&& mysql_db="default_db"
      fi
      echo "开始启动服务端程序"
-     ./logrun.sh
+     echo "nohup python $base_path/shadowsocks/run.sh >> /dev/null 2>&1 &" >>/etc/rc.local
+     ./run.sh
      sleep 3
    fi
 }
@@ -160,7 +164,7 @@ fi
 
 main(){
   #执行对应功能的函数
-  status_agent&&shadow&&ddns&&bbr
+  status_agent&&ddns&&shadow&&bbr
 }
 
 main
