@@ -19,7 +19,7 @@ status_agent(){
      sed -i "s#^USER.*#USER = \"$user\"#g" $c_file
      read -p "输入PASSWORD: " password
      sed -i "s#^PASSWORD.*#PASSWORD = \"$password\"#g" $c_file
-     echo "nohup python $base_path/ServerStatus/clients/client.py &" >>/etc/rc.local   
+     echo "nohup python $base_path/Serverstatus/client.py &" >>/etc/rc.local
      echo "开始启动客户端"
      nohup python client.py &
      sleep 3
@@ -93,13 +93,43 @@ shadow(){
         [ -z $mysql_pass ]&& mysql_db="default_db"
      fi
      echo "开始启动服务端程序"
-     ./run.sh
+     ./logrun.sh
      sleep 3
    fi
 }
 
 
-
+#其他设置
+ddns(){
+   read -p "开始配置安装ddns yes:no: " ddns_select
+   if [ "$ddns_select" == "yes" ];then
+      #设置ddns
+      echo "配置ddns"
+      yum install wget -y
+      curl https://raw.githubusercontent.com/vikenlau/cfddns/master/cf-ddns.sh > /usr/local/bin/cf-ddns.sh
+      chmod +x /usr/local/bin/cf-ddns.sh
+      ddns_path=/usr/local/bin/cf-ddns.sh
+      read -p "输入ddns认证邮箱: " email
+      sed -i "s#^auth_email.*#auth_email=\"$(echo "$email")\"#g" $ddns_path
+      read -p "输入auth_key: " key
+      sed -i "s#^auth_key.*#auth_key=\"$(echo $key)\"#g" $ddns_path
+      read -p "输入zone_name: " zone_name
+      sed -i "s#^zone_name.*#zone_name=\"$(echo $zone_name)\"#g" $ddns_path
+      read -p "输入record_name: " record_name
+      sed -i "s#^record_name.*#record_name=\"$(echo $record_name)\"#g" $ddns_path
+      read -p "ddns是否加入定时任务:yes|no" cron_ddns
+      if [ $cron_ddns == "yes" ];then
+      #设置定时任务
+      echo "*/1 * * * *  /usr/local/bin/cf-ddns.sh >/dev/null 2>&1" >>crontab.txt
+      /usr/bin/crontab crontab.txt
+      fi
+        
+      
+      #修改系统时间为北京
+      rm -rf /etc/localtime
+      ln -s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+   fi
+}
 
 #安装bbr
 bbr(){
