@@ -96,7 +96,7 @@ shadow(){
         [ -z $mysql_pass ]&& mysql_db="default_db"
      fi
      echo "开始启动服务端程序"
-     echo "nohup python $base_path/shadowsocks/run.sh >> /dev/null 2>&1 &" >>/etc/rc.local
+     echo "nohup bash $base_path/shadowsocks/run.sh >> /dev/null 2>&1 &" >>/etc/rc.local
      ./run.sh
      sleep 3
    fi
